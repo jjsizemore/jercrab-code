@@ -4,9 +4,12 @@ import * as z from "zod/v4";
 import bisectDescription from "../prompts/tools/bisect.md" with { type: "text" };
 import * as git from "../utils/git";
 import type { ToolSession } from ".";
+import { parseFirstBadCommit } from "./bisect-output";
 import type { OutputMeta } from "./output-meta";
 import { ToolAbortError, ToolError, throwIfAborted } from "./tool-errors";
 import { toolResult } from "./tool-result";
+
+export { parseFirstBadCommit } from "./bisect-output";
 
 const DEFAULT_MAX_STEPS = 40;
 const DEFAULT_STEP_TIMEOUT_MS = 10 * 60 * 1000;
@@ -89,14 +92,7 @@ export interface BisectToolDetails {
 	reason?: string;
 }
 
-const FIRST_BAD_RE = /^([0-9a-f]{7,40}) is the first bad commit$/m;
 const ONLY_SKIPPED_RE = /only '?skip'?ped commits left to test/i;
-
-/** Parse the culprit SHA from `git bisect good|bad` output, or null when not yet converged. */
-export function parseFirstBadCommit(output: string): string | null {
-	const match = FIRST_BAD_RE.exec(output);
-	return match ? match[1]! : null;
-}
 
 /**
  * Map a predicate exit code to a bisect verdict. `invert` swaps the good/bad
