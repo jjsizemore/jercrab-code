@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- Bisect now recognizes Git 2.56's quoted first-bad commit output while retaining compatibility with older Git versions.
+
 ## [0.11.6] - 2026-07-21
 ## [0.11.5] - 2026-07-20
 ### Changed

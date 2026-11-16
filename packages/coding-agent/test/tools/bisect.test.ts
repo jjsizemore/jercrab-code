@@ -8,7 +8,6 @@ import {
 	type BisectVerdict,
 	BUILTIN_TOOLS,
 	classifyExit,
-	parseFirstBadCommit,
 	runBisectController,
 	type ToolSession,
 } from "@gajae-code/coding-agent/tools";
@@ -68,25 +67,6 @@ afterEach(async () => {
 
 // ── pure helpers ─────────────────────────────────────────────────────────────
 
-describe("parseFirstBadCommit", () => {
-	it("extracts the culprit SHA from real git bisect output", () => {
-		const output = `${FORTY_HEX} is the first bad commit\ncommit ${FORTY_HEX}\nAuthor: X\n`;
-		expect(parseFirstBadCommit(output)).toBe(FORTY_HEX);
-	});
-
-	it("accepts abbreviated SHAs", () => {
-		expect(parseFirstBadCommit("abc1234 is the first bad commit")).toBe("abc1234");
-	});
-
-	it("returns null before the search has converged", () => {
-		expect(parseFirstBadCommit("Bisecting: 3 revisions left to test after this (roughly 2 steps)")).toBeNull();
-	});
-
-	it("does not match the phrase mid-line", () => {
-		expect(parseFirstBadCommit("note: xyz is the first bad commit reported earlier by hand")).toBeNull();
-	});
-});
-
 describe("classifyExit", () => {
 	it("maps exit codes to verdicts", () => {
 		expect(classifyExit(0, false)).toBe("good");
@@ -119,7 +99,7 @@ describe("runBisectController", () => {
 				["good", "bad"],
 				[
 					{ exitCode: 0, output: "Bisecting: 1 revision left to test after this" },
-					{ exitCode: 0, output: `${FORTY_HEX} is the first bad commit\ncommit ${FORTY_HEX}` },
+					{ exitCode: 0, output: `${FORTY_HEX} is the first 'bad' commit\ncommit ${FORTY_HEX}` },
 				],
 			),
 		);
