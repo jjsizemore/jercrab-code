@@ -47,6 +47,8 @@ function createMcpCustomTool(name: string, serverName: string, mcpToolName: stri
 	} as CustomTool;
 }
 
+const authStorages: AuthStorage[] = [];
+
 async function createMinimalSession(
 	tempDirs: string[],
 	settings: Settings,
@@ -61,7 +63,12 @@ async function createMinimalSession(
 	// outside this activation contract. Keep the focused harness process-free and
 	// cover recipe discovery in its dedicated suite.
 	settings.override("recipe.enabled", false);
+	// Activation does not exercise credential persistence. Give each session
+	// its own in-memory store instead of discovering an ambient on-disk DB.
+	const authStorage = await AuthStorage.create(":memory:");
+	authStorages.push(authStorage);
 	return createAgentSession({
+		authStorage,
 		cwd: tempDir,
 		agentDir: tempDir,
 		sessionManager,
@@ -84,14 +91,13 @@ async function createMinimalSession(
 
 describe("createAgentSession defaultInactive tool activation", () => {
 	const tempDirs: string[] = [];
-	const authStorages: AuthStorage[] = [];
 
 	afterEach(() => {
-		for (const tempDir of tempDirs.splice(0)) {
-			fs.rmSync(tempDir, { recursive: true, force: true });
-		}
 		for (const authStorage of authStorages.splice(0)) {
 			authStorage.close();
+		}
+		for (const tempDir of tempDirs.splice(0)) {
+			fs.rmSync(tempDir, { recursive: true, force: true });
 		}
 		vi.restoreAllMocks();
 	});
