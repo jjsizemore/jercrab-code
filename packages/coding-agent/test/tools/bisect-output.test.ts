@@ -25,4 +25,3 @@ describe("parseFirstBadCommit", () => {
 		expect(parseFirstBadCommit("note: xyz is the first bad commit reported earlier by hand")).toBeNull();
 	});
 });
-

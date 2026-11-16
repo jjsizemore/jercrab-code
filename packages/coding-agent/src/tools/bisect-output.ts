@@ -6,4 +6,3 @@ export function parseFirstBadCommit(output: string): string | null {
 	const match = FIRST_BAD_RE.exec(output);
 	return match ? match[1]! : null;
 }
-
